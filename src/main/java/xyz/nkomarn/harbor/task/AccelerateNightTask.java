@@ -18,6 +18,10 @@ public class AccelerateNightTask extends BukkitRunnable {
         this.checker = checker;
         this.world = world;
 
+        world.getPlayers().forEach(player ->
+                player.playSound(player.getLocation(), harbor.getConfiguration().getString("night-skip.sound"), Float.MAX_VALUE, 1.0F)
+        );
+
         harbor.getMessages().sendRandomChatMessage(world, "messages.chat.night-skipping");
         checker.clearWeather(world);
         runTaskTimer(harbor, 1, 1);
@@ -37,9 +41,11 @@ public class AccelerateNightTask extends BukkitRunnable {
         }
 
         if (time >= (dayTime - timeRate * 1.5) && time <= dayTime) {
-            if (config.getBoolean("night-skip.reset-phantom-statistic")) {
-                world.getPlayers().forEach(player -> player.setStatistic(Statistic.TIME_SINCE_REST, 0));
-            }
+            world.getPlayers().forEach(player -> {
+                if (config.getBoolean("night-skip.reset-phantom-statistic")) {
+                    player.setStatistic(Statistic.TIME_SINCE_REST, 0);
+                }
+            });
 
             checker.resetStatus(world);
             cancel();
